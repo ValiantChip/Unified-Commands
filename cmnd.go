@@ -6,10 +6,20 @@ type Handler struct {
 	Commands map[string]Command
 }
 
-func NewHandler() *Handler {
-	return &Handler{
+func NewHandler(commands ...struct {
+	name        string
+	description string
+	runner      Runner
+}) *Handler {
+	handler := &Handler{
 		Commands: make(map[string]Command),
 	}
+
+	for _, command := range commands {
+		handler.AddCommand(command.name, command.description, command.runner)
+	}
+
+	return handler
 }
 
 func (h *Handler) AddCommand(name, description string, runner Runner) {
