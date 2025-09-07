@@ -1,0 +1,59 @@
+package cmnd
+
+import "strings"
+
+type Handler struct {
+	Commands map[string]Command
+}
+
+func NewHandler() *Handler {
+	return &Handler{
+		Commands: make(map[string]Command),
+	}
+}
+
+func (h *Handler) AddCommand(name, description string, runner Runner) {
+	command := Command{
+		Description: description,
+		Runner:      runner,
+	}
+
+	h.Commands[name] = command
+}
+
+func (h *Handler) Handle(input string) (error, bool) {
+	args := strings.Split(input, " ")
+
+	return h.HandleArgs(args)
+}
+
+func (h *Handler) HandleArgs(args []string) (error, bool) {
+	if len(args) == 0 {
+		return nil, false
+	}
+
+	if cmd, ok := h.Commands[args[0]]; ok {
+		return cmd.Runner(args), true
+	} else {
+		return nil, false
+	}
+
+}
+
+func (h *Handler) GetDescription() string {
+	var desc strings.Builder
+	for name, cmd := range h.Commands {
+		desc.WriteString(name)
+		desc.WriteString("\n    \t")
+		desc.WriteString(strings.ReplaceAll(cmd.Description, "\n", "\n    \t"))
+	}
+
+	return desc.String()
+}
+
+type Runner func([]string) error
+
+type Command struct {
+	Description string
+	Runner      Runner
+}
