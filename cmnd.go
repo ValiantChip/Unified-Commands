@@ -56,8 +56,12 @@ func (h *Handler) GetDescription() string {
 	var desc strings.Builder
 	for name, cmd := range h.commands {
 		desc.WriteString(name)
-		desc.WriteString("\n    \t")
-		desc.WriteString(strings.ReplaceAll(cmd.Description, "\n", "\n    \t"))
+		if cmd.Description != "" {
+			desc.WriteString(":")
+			desc.WriteString("\n    \t")
+			desc.WriteString(strings.ReplaceAll(cmd.Description, "\n", "\n    \t"))
+		}
+		desc.WriteString("\n")
 	}
 
 	return desc.String()
