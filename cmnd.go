@@ -3,7 +3,7 @@ package cmnd
 import "strings"
 
 type Handler struct {
-	Commands map[string]Command
+	commands map[string]Command
 }
 
 type HandlerArg struct {
@@ -14,7 +14,7 @@ type HandlerArg struct {
 
 func NewHandler(commands ...HandlerArg) *Handler {
 	handler := &Handler{
-		Commands: make(map[string]Command),
+		commands: make(map[string]Command),
 	}
 
 	for _, command := range commands {
@@ -30,7 +30,7 @@ func (h *Handler) AddCommand(name, description string, runner Runner) {
 		Runner:      runner,
 	}
 
-	h.Commands[name] = command
+	h.commands[name] = command
 }
 
 func (h *Handler) Handle(input string) (error, bool) {
@@ -44,7 +44,7 @@ func (h *Handler) HandleArgs(args []string) (error, bool) {
 		return nil, false
 	}
 
-	if cmd, ok := h.Commands[args[0]]; ok {
+	if cmd, ok := h.commands[args[0]]; ok {
 		return cmd.Runner(args), true
 	} else {
 		return nil, false
@@ -54,7 +54,7 @@ func (h *Handler) HandleArgs(args []string) (error, bool) {
 
 func (h *Handler) GetDescription() string {
 	var desc strings.Builder
-	for name, cmd := range h.Commands {
+	for name, cmd := range h.commands {
 		desc.WriteString(name)
 		desc.WriteString("\n    \t")
 		desc.WriteString(strings.ReplaceAll(cmd.Description, "\n", "\n    \t"))
