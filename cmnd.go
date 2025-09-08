@@ -2,8 +2,14 @@ package cmnd
 
 import "strings"
 
+type commandDescription struct {
+	name        string
+	description string
+}
+
 type Handler struct {
-	commands map[string]Command
+	commands            map[string]Command
+	commandDescriptions []commandDescription
 }
 
 type HandlerArg struct {
@@ -31,6 +37,7 @@ func (h *Handler) AddCommand(name, description string, runner Runner) {
 	}
 
 	h.commands[name] = command
+	h.commandDescriptions = append(h.commandDescriptions, commandDescription{name: name, description: description})
 }
 
 func (h *Handler) Handle(input string) (error, bool) {
@@ -54,12 +61,12 @@ func (h *Handler) HandleArgs(args []string) (error, bool) {
 
 func (h *Handler) GetDescription() string {
 	var desc strings.Builder
-	for name, cmd := range h.commands {
-		desc.WriteString(name)
-		if cmd.Description != "" {
+	for _, c := range h.commandDescriptions {
+		desc.WriteString(c.name)
+		if c.description != "" {
 			desc.WriteString(":")
 			desc.WriteString("\n    \t")
-			desc.WriteString(strings.ReplaceAll(cmd.Description, "\n", "\n    \t"))
+			desc.WriteString(strings.ReplaceAll(c.description, "\n", "\n    \t"))
 		}
 		desc.WriteString("\n")
 	}
