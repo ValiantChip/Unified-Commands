@@ -1,6 +1,9 @@
 package cmnd
 
-import "strings"
+import (
+	"errors"
+	"strings"
+)
 
 type commandDescription struct {
 	name        string
@@ -8,6 +11,7 @@ type commandDescription struct {
 }
 
 type Handler struct {
+	forced              chan []string
 	commands            map[string]Command
 	commandDescriptions []commandDescription
 }
@@ -30,6 +34,18 @@ func NewHandler(commands ...HandlerArg) *Handler {
 	return handler
 }
 
+var ErrAlreadyForced = errors.New("response already forced")
+
+func (h *Handler) ForceResponse(r Runner) error {
+	if h.forced == nil {
+		return ErrAlreadyForced
+	}
+	h.forced = make(chan []string)
+	cmd := <-h.forced
+	h.forced = nil
+	return r(cmd)
+}
+
 func (h *Handler) AddCommand(name, description string, runner Runner) {
 	command := Command{
 		Description: description,
@@ -49,6 +65,11 @@ func (h *Handler) Handle(input string) (error, bool) {
 func (h *Handler) HandleArgs(args []string) (error, bool) {
 	if len(args) == 0 {
 		return nil, false
+	}
+
+	if h.forced != nil {
+		h.forced <- args
+		return nil, true
 	}
 
 	if cmd, ok := h.commands[args[0]]; ok {
