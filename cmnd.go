@@ -37,7 +37,7 @@ func NewHandler(commands ...HandlerArg) *Handler {
 var ErrAlreadyForced = errors.New("response already forced")
 
 func (h *Handler) ForceResponse(r Runner) error {
-	if h.forced == nil {
+	if h.forced != nil {
 		return ErrAlreadyForced
 	}
 	h.forced = make(chan []string)
