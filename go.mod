@@ -1,3 +1,3 @@
-module github.com/ValiantChip/uniCommands
+module github.com/CzarJoti/uniCommands
 
 go 1.24.6
